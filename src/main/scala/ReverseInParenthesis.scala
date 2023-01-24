@@ -1,22 +1,28 @@
 object ReverseInParenthesis extends App {
 
-  def reverseInParentheses(inputString: String): String = {
-    val InnerExpression = "([a-z]+)\\(([a-z]+)\\)([a-z]+)".r
-    val LeftExpression = "\\(([a-z]+)\\)([a-z]+)".r
-    val RightExpression = "([a-z]+)\\(([a-z]+)\\)".r
-    val LookAheadExpression = "/\\(([^)]+)\\)/".r
-    val result = inputString match {
-      case LookAheadExpression(content) => s"Found content $content"
-      case InnerExpression(prefix,content,suffix) => s"Prefix is $prefix and content is $content and suffix $suffix"
-      case LeftExpression(content, suffix) => s"Content is $content and suffix is $suffix"
-      case RightExpression(prefix, content) => s"Prefix is $prefix and content is $content"
-      case _ => "No match"
+  val inputString = "u(tuoutf()pa(x(ykigx(wq))(()()cj()(xicb)najyeiw)u(oxn)f(ga(jimkd)(a)rylu)ass)dge)iqk(n()t((yc(afs((a)((j)qf(ksvqg(s)sin)fy()(s(((lid)jy(p(bo()((()jrs)))zauve(krhact(lpw))ne))ng)gm(i)f)t)h()tois)mu))((au)mzpc)(ilqa(tnprm)hmul(y(er)pjj)qnqcd(exx)(pmjkd)(nhexjxhuc)(ehq)t()uo(gnbh)cpmjofgd)(oio()twrzssjt)()iln(vprgttrt(d((yhiwae)ix()owemq)(((pk()h(((jdpt()()l()jkq()mrm((gnu)mq)srz(ua(nofa(nf))dzkikdwlr)ww)qf(q)jhm)()h(o(kt)kbm(ilqr)tq)h(mo)))(g)ln)nmgj)y(()jwetph))(u)mpf(j((xujbp)ezg(((nucbr(g)ckndk))))))))"
+
+  def reverseInParenthesis(inputString: String): String =
+    hasParenthesis(inputString) match {
+      case false => inputString
+      case true => reverseInParenthesis(removeInnerParenthesis(inputString))
     }
-    result
+
+  def hasParenthesis(inputString: String): Boolean =
+    inputString.contains("(") && inputString.contains(")")
+
+  def removeInnerParenthesis(inputString: String): String = {
+    val cleanInputString = inputString.replaceAll("\\(\\)", "")
+    val LookInsideParentheses = """(?<=\()[a-z]+(?=\))""".r
+    val resultInside = LookInsideParentheses.findFirstIn(cleanInputString).mkString
+    if (resultInside.isEmpty)
+      cleanInputString
+    else {
+      val fixedString = cleanInputString.substring(0,cleanInputString.indexOf(s"($resultInside)")) + resultInside.reverse + cleanInputString.substring(cleanInputString.indexOf(s"($resultInside)") + 2 + resultInside.length)
+      removeInnerParenthesis(fixedString)
+    }
   }
-  val basicInnerString = "foo(bar)blim"
-  val basicLeftString = "(foo)barblim"
-  val basicRightString = "foobar(blim)"
-  val inputString = "foo(bar(baz))blim"
-  println(reverseInParentheses(basicInnerString))
+
+  println(reverseInParenthesis(inputString))
+
 }
